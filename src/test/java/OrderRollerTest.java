@@ -1,22 +1,23 @@
+import org.junit.*;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import pageobject.MainPage;
 import pageobject.FirstOrderPage;
 import pageobject.SecondOrderPage;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.Before;
 import org.junit.runners.Parameterized;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.junit.Assert;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 
 //Обьявил параметризованный тест
 @RunWith(Parameterized.class)
 public class OrderRollerTest {
     //Инициализирую переменные которые нужны для заполнения полей
-    WebDriver driver;
+    private WebDriver driver;
     private final String nameValue;
     private final String surnameValue;
     private final String addressValue;
@@ -35,26 +36,26 @@ public class OrderRollerTest {
         // 0 - кнопка в хедере, 1 - кнопка в середине страницы
         this.orderButtonNumber = orderButtonNumber;
     }
+    @Before
+    public void startUp(){
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        driver = new ChromeDriver(options);
+        driver.get("https://qa-scooter.praktikum-services.ru/");
+    }
     //создал обьект с передаваемыми значениями
     @Parameterized.Parameters
     public static Object [][] personValues(){
         return new Object[][]{
                 {"Виталяя","Иванов","Санкт-Петербург","89991112233","Черкизовская","31.04.2023",0},
-                {"Максим","Белый","Москва","89991234567","Чистые пруды","3.05.2024",1}
+                {"Максим","Белый","Москва","89828282233","Чистые пруды","3.05.2024",1}
         };
     }
 
 
     @Test
     public void testOrderOfRoller() {
-        //обьявил драйвер и создал его экземпляр
-        System.setProperty("webdriver.chrome.driver", "/Users/Boris/IdeaProjects/chromedriver");
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*");
-        WebDriver driver = new ChromeDriver(options);
-        //WebDriver driver = new FirefoxDriver();
-        driver.get("https://qa-scooter.praktikum-services.ru/");
-        //Обьявил экземпляр главной страницы
         MainPage objMainPage = new MainPage(driver);
         //Закрыл куки
         objMainPage.closeCookie();
@@ -73,10 +74,13 @@ public class OrderRollerTest {
         System.out.println(result);
         //завел переменную в которой сохранил появившуюся модалку
         Assert.assertThat(result, CoreMatchers.startsWith("Заказ оформлен"));
-        driver.quit();
     }
 
-
+    @After
+    public void teardown() {
+        // Закрой браузер
+        driver.quit();
+    }
 
 
 }
