@@ -1,4 +1,6 @@
 import org.checkerframework.checker.units.qual.C;
+import org.junit.After;
+import org.junit.Before;
 import org.openqa.selenium.WebElement;
 import pageobject.MainPage;
 import org.junit.Test;
@@ -10,6 +12,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import io.github.bonigarcia.wdm.WebDriverManager;
 
 import java.time.Duration;
 import java.util.List;
@@ -20,7 +23,7 @@ import java.util.List;
 public class MainPageTest  {
     private final int numberOfQuestion;
     //Инициализировал драйвер и переменные с ожидаемым результатом и локаторами вопроса и ответа о важном
-    WebDriver driver;
+    private WebDriver driver;
     private final String expectedResult;
 
     //Обьявил конструктор теста главной страницы с параметрами
@@ -29,6 +32,14 @@ public class MainPageTest  {
         this.numberOfQuestion = numberOfQuestion;
 
 
+    }
+    @Before
+    public void startUp(){
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--remote-allow-origins=*");
+        driver = new ChromeDriver(options);
+        driver.get("https://qa-scooter.praktikum-services.ru/");
     }
     //Создал обьект с парарметрами
     @Parameterized.Parameters
@@ -48,18 +59,10 @@ public class MainPageTest  {
 
     }
 
-//Завтра уезжаю в командировку, Жёсткий дедлайн)) если ничего критичного апрувните пожалуйста))
+//Через планшет удалённо что смог исправил
 
     @Test
     public void testQuestionsAndAnswersMatches() {
-        //обьявил драйвер
-        System.setProperty("webdriver.chrome.driver", "/Users/Boris/IdeaProjects/chromedriver");
-        ChromeOptions options = new ChromeOptions();
-        options.addArguments("--remote-allow-origins=*" , "--headless");
-        WebDriver driver = new ChromeDriver(options);
-        //WebDriver driver = new FirefoxDriver();
-        //Перешел на главную
-        driver.get("https://qa-scooter.praktikum-services.ru/");
         //Создал экземпляр главной страницы
         MainPage objMainPage = new MainPage(driver);
         //Закрыл куки
@@ -73,7 +76,11 @@ public class MainPageTest  {
         //Сравнил с правильным текстом
         Assert.assertEquals("Текст не совпал",expectedResult, result);
         //Закрыл драйвер
+
+    }
+    @After
+    public void teardown() {
+        // Закрой браузер
         driver.quit();
     }
-
 }
